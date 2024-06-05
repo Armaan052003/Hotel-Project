@@ -1,20 +1,38 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Linq;
 
 public class Hotel
 {   
     
     private static int _bookingId = 0;
-    private Dictionary<int, Hotel> database = new Dictionary<int, Hotel>();
+    public static int bookingId { get { return _bookingId; } }
 
-    // user side details
+
+    private static Dictionary<int, Hotel> _database = new Dictionary<int, Hotel>();
+    public static Dictionary<int, Hotel> database { get { return _database;  } }
     
+    private Dictionary<int,int> _bookingId_price = new Dictionary<int,int>();
+    public Dictionary<int,int> bookingId_price { get { return _bookingId_price; } }
+    // user side details
+
     private int _id;
+    public int id { get { return _id; } }
+
     private string _username;
+    public string username { get { return _username; } }
+    
+   
 
     private Dictionary<string, int> _user_rooms_bookingDays = new Dictionary<string, int>();
+    public Dictionary<string, int> user_rooms_bookingDays { get { return _user_rooms_bookingDays; } }
+
+
     private Dictionary<string, List<string>> _user_rooms_specialities = new Dictionary<string, List<string>>();
+    public Dictionary<string, List<string>> user_rooms_specialities { get { return _user_rooms_specialities; } }
+
 
     private Dictionary<string, int> _user_rooms_booked = new Dictionary<string, int>
     {
@@ -24,10 +42,12 @@ public class Hotel
         {"Bronze",0 }
 
     };
+    public Dictionary<string, int> user_rooms_booked { get { return _user_rooms_booked; } }
 
 
     // System Details
     private int _totalBookingPrice = 0;
+    public int totalBookingPrice { get { return _totalBookingPrice; } }
 
 
     private static Dictionary<string, int> _rooms_availiable = new Dictionary<string, int> {
@@ -100,9 +120,12 @@ public class Hotel
     {
         _totalBookingPrice = 0;
         int price = 0;
+     
 
         foreach(KeyValuePair<string,List<string>> userRoom in _user_rooms_specialities)
         {
+            price = 0;
+
             
             price += _FixedBookingPrice[userRoom.Key];
 
@@ -115,14 +138,15 @@ public class Hotel
 
             price *= _user_rooms_booked[userRoom.Key] * _user_rooms_bookingDays[userRoom.Key];
             _totalBookingPrice+= price;
-            price = 0;
         }
 
         
         Console.WriteLine($"\nYour Booking Bill is {_totalBookingPrice} INR/- Only");
-        database.Add(_bookingId, this);
+        _database[_bookingId]._totalBookingPrice = _totalBookingPrice;
+        _bookingId_price.Add(_bookingId, _totalBookingPrice);
+
     }
-    
+
     public void getMyBookingDetails()
     {
         foreach(KeyValuePair<string,List<string>> user_room_speciality in _user_rooms_specialities)
@@ -287,7 +311,12 @@ public class Hotel
         _rooms_availiable[roomType] -= nRooms;
 
         _bookingId++;
+        _database.Add(_bookingId, this);
+
+        Console.WriteLine($"\nYour Booking ID is : {_bookingId}\n");
     }
+
+   
     
 
     public static void Main(string[] args)
@@ -304,5 +333,13 @@ public class Hotel
         customer1.getMyBookingDetails();
         customer1.getBookingBill();
 
+        Dictionary<int,Hotel> db = Hotel.database;
+
+        var result = from data in db where data.Value.id == 1001 select data;
+
+        foreach(KeyValuePair<int, Hotel> item in result)
+        {
+            Console.WriteLine($"Booking Id = {item.Key}, Total Price = {item.Value.bookingId_price[item.Key]}");
+        }
     }
 }
