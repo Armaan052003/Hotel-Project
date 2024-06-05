@@ -120,7 +120,7 @@ public class Hotel
     {
         _totalBookingPrice = 0;
         int price = 0;
-     
+        // added comment
 
         foreach(KeyValuePair<string,List<string>> userRoom in _user_rooms_specialities)
         {
